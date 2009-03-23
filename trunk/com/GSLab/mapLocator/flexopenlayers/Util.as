@@ -1,6 +1,6 @@
 /* Copyright (c) 2009 Viraj Kanwade., published under the BSD license. */
-
-package {
+package com.GSLab.mapLocator.flexopenlayers {
+	import mx.containers.Canvas;
 
 	/**
 	* @class
@@ -24,643 +24,224 @@ package {
             return uObject;
         }
 
-    }
-
-	/**
-	* @class This class represents a screen coordinate, in x and y coordinates
-	*/
-	class Pixel {
-
-		/** @type float **/
-		public var x:Number = 0.0;
-
-		/** @type float **/
-		public var y:Number = 0.0;
-
-		/**
-		* @constructor
-		*
-		* @param {float} x
-		* @param {float} y
-		*/
-		public function Pixel(x:Number, y:Number):void {
-			this.x = x;
-			this.y = y;
-		}
-
-		/**
-		* @return string representation of Pixel. ex: "x=200.4,y=242.2"
-		* @type str
-		*/
-		public function toString():String {
-			return ("x=" + this.x + ",y=" + this.y);
-		}
-
-		/**
-		* @type Pixel
-		*/
-		public function copyOf():Pixel {
-			return this.clone();
-		}
-
-		/**
-		* @param {Pixel} px
-		*
-		* @return whether or not the point passed in as parameter is equal to this
-		* 	note that if px passed in is null, returns false
-		* @type bool
-		*/
-		public function equals(px:Pixel) {
-			var equals:Boolean = false;
-			if (px != null) {
-				equals = ((this.x == px.x) && (this.y == px.y));
-			}
-			return equals;
-		}
-
-		/**
-		* @param {int} x
-		* @param {int} y
-		*
-		* @return a new Pixel with this pixel's x&y augmented by the
-		*         values passed in.
-		* @type Pixel
-		*/
-		public function add(x, y):Pixel {
-			return new Pixel(this.x + x, this.y + y);
-		}
-
-		/**
-		* @param {Pixel} px
-		*
-		* @return a new Pixel with this pixel's x&y augmented by the
-		*         x&y values of the pixel passed in.
-		* @type Pixel
-		*/
-		public function offset(px):Pixel {
-			return this.add(px.x, px.y);
-		}
-
-	}
-
-    /**
-    * @class This class represents a width and height pair
-    */
-	class Size {
-
-		/** @type float */
-		public var w:Number = 0.0;
-
-		/** @type float */
-		public var h:Number = 0.0;
-
-
-		/**
-		* @constructor
-		*
-		* @param {float} w
-		* @param {float} h
-		*/
-		public function Size(w:Number, h:Number):void {
-			this.w = w;
-			this.h = h;
-		}
-
-		/**
-		* @return String representation of Size object.
-		*         (ex. <i>"w=55,h=66"</i>)
-		* @type String
-		*/
-		public function toString():String {
-			return ("w=" + this.w + ",h=" + this.h);
-		}
-
-		/**
-		* @return New Size object with the same w and h values
-		* @type Size
-		*/
-		public function copyOf():Size {
-			return this.clone();
-		}
-
-		/**
-		* @param {Size} sz
-		* @returns Boolean value indicating whether the passed-in Size
-		*          object has the same w and h components as this
-		*          note that if sz passed in is null, returns false
-		*
-		* @type bool
-		*/
-		public function equals(sz:Size):Boolean {
-			var equals:Boolean = false;
-			if (sz != null) {
-				equals = ((this.w == sz.w) && (this.h == sz.h));
-			}
-			return equals;
-		}
-	}
-
-    /**
-    * @class This class represents a longitude and latitude pair
-    */
-    class LonLat {
-
-        /** @type float */
-        public var lon:Number = 0.0;
-
-        /** @type float */
-        public var lat:Number = 0.0;
-
-        /**
-        * @constructor
+        /** Takes a hash and copies any keys that don't exist from
+        *   another hash, by analogy with Object.extend() from
+        *   Prototype.js.
         *
-        * @param {float} lon
-        * @param {float} lat
-        */
-        public function LonLat(lon:Number, lat:Number):void {
-            this.lon = lon;
-            this.lat = lat;
-        }
-
-        /** Alternative constructor that builds a new LonLat from a
-        *    parameter string
+        * @param {Object} to
+        * @param {Object} from
         *
-        * @constructor
-        *
-        * @param {String} str Comma-separated Lon,Lat coordinate string.
-        *                     (ex. <i>"5,40"</i>)
-        *
+        * @type Object
         */
-        public function LonLat(str:String):void {
-            var pair:Array = str.split(",");
-            this.lon = parseFloat(pair[0]);
-            this.lat = parseFloat(pair[1]);
-        }
-
-        /**
-        * @param {String} str Comma-separated Lon,Lat coordinate string.
-        *                     (ex. <i>"5,40"</i>)
-        *
-        * @returns New LonLat object built from the passed-in String.
-        * @type LonLat
-        */
-        public static function fromString(str:String):LonLat {
-            var pair:Array = str.split(",");
-            return new LonLat(parseFloat(pair[0]),
-                                         parseFloat(pair[1]));
-        }
-
-        /**
-        * @return String representation of LonLat object.
-        *         (ex. <i>"lon=5,lat=42"</i>)
-        * @type String
-        */
-        public function toString():String {
-            return ("lon=" + this.lon + ",lat=" + this.lat);
-        }
-
-        /**
-        * @return Shortened String representation of LonLat object.
-        *         (ex. <i>"5, 42"</i>)
-        * @type String
-        */
-        public function toShortString():String {
-            return (this.lon + ", " + this.lat);
-        }
-
-        /**
-        * @return New LonLat object with the same lon and lat values
-        * @type LonLat
-        */
-        public function copyOf():LonLat {
-            return this.clone();
-        }
-
-        /**
-        * @param {float} lon
-        * @param {float} lat
-        *
-        * @return A new LonLat object with the lon and lat passed-in
-        *         added to this's.
-        * @type LonLat
-        */
-        public function add(lon:Number, lat:Number):LonLat {
-            return new LonLat(this.lon + lon, this.lat + lat);
-        }
-
-        /**
-        * @param {LonLat} ll
-        * @returns Boolean value indicating whether the passed-in LonLat
-        *          object has the same lon and lat components as this
-        *          note that if ll passed in is null, returns false
-        *
-        * @type bool
-        */
-        public function equals(ll:LonLat):Boolean {
-            var equals:Boolean = false;
-            if (ll != null) {
-                equals = ((this.lon == ll.lon) && (this.lat == ll.lat));
-            }
-            return equals;
-        }
-    }
-
-    /**
-    * @class This class represents a bounding box.
-    *        Data stored as left, bottom, right, top floats
-    */
-    class Bounds {
-
-        /** @type float */
-        public var left:Number = 0.0;
-
-        /** @type float */
-        public var bottom:Number = 0.0;
-
-        /** @type float */
-        public var right:Number = 0.0;
-
-        /** @type float */
-        public var top:Number = 0.0;
-
-        /**
-        * @constructor
-        *
-        * @param {float} left
-        * @param {float} bottom
-        * @param {float} right
-        * @param {float} top
-        *
-        */
-        public function Bounds(left:Number, bottom:Number, right:Number, top:Number):Void {
-            this.left = left;
-            this.bottom = bottom;
-            this.right = right;
-            this.top = top;
-        }
-
-        /** Alternative constructor that builds a new OpenLayers.Bounds from a 
-        *    parameter string
-        * @constructor
-        * 
-        * 
-        * @param {String} str Comma-separated bounds string. (ex. <i>"5,42,10,45"</i>)
-        *
-        */
-        public function Bounds(str:String):void {
-            var bounds = str.split(",");
-            OpenLayers.Bounds.fromArray(bounds);
-        }
-
-        /** Alternative constructor that builds a new OpenLayers.Bounds
-        *    from an array
-        * 
-        * @constructor
-        * 
-        * @param {Array} bbox Array of bounds values (ex. <i>[5,42,10,45]</i>)
-        *
-        */
-        public function Bounds(bbox:Array):void {
-            this.left = parseFloat(bbox[0]);
-            this.bottom = parseFloat(bbox[1]);
-            this.right = parseFloat(bbox[2]);
-            this.top = parseFloat(bbox[3]);
-        }
-
-        /** Alternative constructor that builds a new OpenLayers.Bounds
-        *    from an OpenLayers.Size
-        * 
-        * @constructor
-        * 
-        * @param {OpenLayers.Size} size
-        *
-        */
-        public function Bounds(size:Size):void {
-            this.left = 0;
-            this.bottom = size.h;
-            this.right = size.w;
-            this.top = 0;
-        }
-
-        /** Function that builds a new OpenLayers.Bounds from a 
-        *    parameter string
-        * 
-        * 
-        * @param {String} str Comma-separated bounds string. (ex. <i>"5,42,10,45"</i>)
-        *
-        * @returns New OpenLayers.Bounds object built from the passed-in String.
-        * @type OpenLayers.Bounds
-        */
-        public static function fromString(str:String):Bounds {
-            var bounds = str.split(",");
-            return OpenLayers.Bounds.fromArray(bounds);
-        }
-
-        /** Function that builds a new OpenLayers.Bounds
-        *    from an array
-        * 
-        * @static function
-        * 
-        * @param {Array} bbox Array of bounds values (ex. <i>[5,42,10,45]</i>)
-        *
-        * @returns New OpenLayers.Bounds object built from the passed-in Array.
-        * @type OpenLayers.Bounds
-        */
-        public static function fromArray(bbox:Array):Bounds {
-            return new OpenLayers.Bounds(parseFloat(bbox[0]),
-                                        parseFloat(bbox[1]),
-                                        parseFloat(bbox[2]),
-                                        parseFloat(bbox[3]));
-        }
-
-        /** Static function that builds a new OpenLayers.Bounds
-        *    from an OpenLayers.Size
-        * 
-        * @constructor
-        * 
-        * @param {OpenLayers.Size} size
-        *
-        * @returns New OpenLayers.Bounds object built with top and left set to 0 and
-        *           bottom right taken from the passed-in OpenLayers.Size.
-        * @type OpenLayers.Bounds
-        */
-        public static function fromSize(size:Size):Bounds {
-            return new OpenLayers.Bounds(0,
-                                        size.h,
-                                        size.w,
-                                        0);
-        }
-
-        /**
-        * @returns A fresh copy of the bounds
-        * @type OpenLayers.Bounds
-        */
-        public function copyOf():Bounds {
-            return this.clone();
-        }
-
-        /**
-        * @param {OpenLayers.Bounds} bounds
-        * @returns Boolean value indicating whether the passed-in OpenLayers.Bounds
-        *          object has the same left, right, top, bottom components as this
-        *           note that if bounds passed in is null, returns false
-        *
-        * @type bool
-        */
-        public function equals(bounds:Bounds):Boolean {
-            var equals:Boolean = false;
-            if (bounds != null) {
-                equals = ((this.left == bounds.left) &&
-                          (this.right == bounds.right) &&
-                          (this.top == bounds.top) &&
-                          (this.bottom == bounds.bottom));
-            }
-            return equals;
-        }
-
-        /**
-        * @return String representation of OpenLayers.Bounds object.
-        *         (ex.<i>"left-bottom=(5,42) right-top=(10,45)"</i>)
-        * @type String
-        */
-        public function toString():String {
-            return ( "left-bottom=(" + this.left + "," + this.bottom + ")"
-                     + " right-top=(" + this.right + "," + this.top + ")" );
-        }
-
-        /**
-        * @return Simple String representation of OpenLayers.Bounds object.
-        *         (ex. <i>"5,42,10,45"</i>)
-        * @type String
-        */
-        public function toBBOX():String {
-            return (this.left + "," + this.bottom + ","
-                    + this.right + "," + this.top);
-        }
-
-        /**
-        * @returns The width of the bounds
-        * @type float
-        */
-        public function getWidth():Number {
-            return (this.right - this.left);
-        }
-
-        /**
-        * @returns The height of the bounds
-        * @type float
-        */
-        public function getHeight():Number {
-            return (this.top - this.bottom);
-        }
-
-        /**
-        * @returns An OpenLayers.Size which represents the size of the box
-        * @type OpenLayers.Size
-        */
-        public function getSize():Size {
-            return new OpenLayers.Size(this.getWidth(), this.getHeight());
-        }
-
-        /**
-        * @returns An OpenLayers.Pixel which represents the center of the bounds
-        * @type OpenLayers.Pixel
-        */
-        public function getCenterPixel():Pixel {
-            return new OpenLayers.Pixel( (this.left + this.right) / 2,
-                                         (this.bottom + this.top) / 2);
-        }
-
-        /**
-        * @returns An OpenLayers.LonLat which represents the center of the bounds
-        * @type OpenLayers.LonLat
-        */
-        public function getCenterLonLat():LonLat {
-            return new OpenLayers.LonLat( (this.left + this.right) / 2,
-                                          (this.bottom + this.top) / 2);
-        }
-
-        /**
-        * @param {float} x
-        * @param {float} y
-        *
-        * @returns A new OpenLayers.Bounds whose coordinates are the same as this,
-        *          but shifted by the passed-in x and y values
-        * @type OpenLayers.Bounds
-        */
-        public function add(x:Number, y:Number):Bounds {
-            return new OpenLayers.Box(this.left + x, this.bottom + y,
-                                      this.right + x, this.top + y);
-        }
-
-        /**
-        * @param {float} x
-        * @param {float} y
-        * @param {Boolean} inclusive Whether or not to include the border.
-        *                            Default is true
-        *
-        * @return Whether or not the passed-in coordinates are within this bounds
-        * @type Boolean
-        */
-        public function contains(x:Number, y:Number, inclusive:Boolean = true):Boolean {
-
-            /*
-            //set default
-            if (inclusive == null) {
-                inclusive = true;
-            }
-            */
-
-            var contains:Boolean = false;
-            if (inclusive) {
-                contains = ((x >= this.left) && (x <= this.right) &&
-                            (y >= this.bottom) && (y <= this.top));
-            } else {
-                contains = ((x > this.left) && (x < this.right) &&
-                            (y > this.bottom) && (y < this.top));
-            }
-            return contains;
-        }
-
-        /**
-        * @param {OpenLayers.Bounds} bounds
-        * @param {Boolean} partial If true, only part of passed-in
-        *                          OpenLayers.Bounds needs be within this bounds.
-        *                          If false, the entire passed-in bounds must be
-        *                          within. Default is false
-        * @param {Boolean} inclusive Whether or not to include the border.
-        *                            Default is true
-        *
-        * @return Whether or not the passed-in OpenLayers.Bounds object is
-        *         contained within this bounds.
-        * @type Boolean
-        */
-        public function containsBounds(bounds:Bounds, partial:Boolean = false, inclusive:Boolean = true):Boolean {
-
-            /*
-            //set defaults
-            if (partial == null) {
-                partial = false;
-            }
-            if (inclusive == null) {
-                inclusive = true;
-            }
-            */
-
-            var inLeft;
-            var inTop;
-            var inRight;
-            var inBottom;
-
-            if (inclusive) {
-                inLeft = (bounds.left >= this.left) && (bounds.left <= this.right);
-                inTop = (bounds.top >= this.bottom) && (bounds.top <= this.top);
-                inRight= (bounds.right >= this.left) && (bounds.right <= this.right);
-                inBottom = (bounds.bottom >= this.bottom) && (bounds.bottom <= this.top);
-            } else {
-                inLeft = (bounds.left > this.left) && (bounds.left < this.right);
-                inTop = (bounds.top > this.bottom) && (bounds.top < this.top);
-                inRight= (bounds.right > this.left) && (bounds.right < this.right);
-                inBottom = (bounds.bottom > this.bottom) && (bounds.bottom < this.top);
-            }
-
-            return (partial) ? (inTop || inBottom) && (inLeft || inRight )
-                             : (inTop && inLeft && inBottom && inRight);
-        }
-
-        /**
-         * @param {OpenLayers.LonLat} lonlat
-         *
-         * @returns The quadrant ("br" "tr" "tl" "bl") of the bounds in which
-         *           the coordinate lies.
-         * @type String
-         */
-        public function determineQuadrant(lonlat:LonLat):String {
-
-            var quadrant:String = "";
-            var center:LonLat = this.getCenterLonLat();
-
-            quadrant += (lonlat.lat < center.lat) ? "b" : "t";
-            quadrant += (lonlat.lon < center.lon) ? "l" : "r";
-
-            return quadrant;
-        }
-
-        /**
-         * @param {String} quadrant 
-         * 
-         * @returns The opposing quadrant ("br" "tr" "tl" "bl"). For Example, if 
-         *           you pass in "bl" it returns "tr", if you pass in "br" it 
-         *           returns "tl", etc.
-         * @type String
-         */
-        public static function oppositeQuadrant(quadrant:String):String {
-            var opp:String = "";
-            
-            opp += (quadrant.charAt(0) == 't') ? 'b' : 't';
-            opp += (quadrant.charAt(1) == 'l') ? 'r' : 'l';
-            
-            return opp;
-        }
-    }
-
-    // Not sure if this can be done.
-    class String extends String {
-        public function startsWith(sStart:String):Boolean {
-            return (this.substr(0,sStart.length) == sStart);
-        }
-        
-    }
-    
-    // Not sure if this can be done.
-    class Array extends Array {
-        /** Remove an object from an array. Iterates through the array
-        *    to find the item, then removes it.
-        *
-        * @param {Object} item
-        * 
-        * @returns A reference to the array
-        * @type Array
-        */
-        public function remove(item:Object):Array {
-            for(var i:int=0; i < this.length; i++) {
-                if(this[i] == item) {
-                    this.splice(i,1);
-                    //break;more than once??
+        public static function applyDefaults(to:Object, from:Object):Object {
+            for (var key:String in from) {
+                if (to[key] == null) {
+                    to[key] = from[key];
                 }
             }
-            return this;
-        }
+            return to;
+        };
 
         /**
-        * @returns A fresh copy of the array
-        * @type Array
-        */
-        public function copyOf():Array {
-            return this.clone();
-        }
-
-        /**
-        * @param  {Object} item
-        */
-        public function prepend(item:Object):void {
-            this.splice(0, 0, item);
-        }
-
-        /**
-        * @param  {Object} item
-        */
-        public function append(item:Object):void {
-            this.push(item);
-        }
-        
-        /**
+        * @param {Object} params
         *
+        * @returns a concatenation of the properties of an object in 
+        *    http parameter notation. 
+        *    (ex. <i>"key1=value1&key2=value2&key3=value3"</i>)
+        * @type String
         */
-        public function clear():void {
-            this.splice(0, this.length);
-        }
-    }
-    
+        public static function getParameterString(params:Object) {
+            var paramsArray:Array = new Array();
+            
+            for (var key:String in params) {
+                var value:Object = params[key];
+                //skip functions
+                if (typeof value == 'function') continue;
+            
+                paramsArray.push(key + "=" + value);
+            }
+            
+            return paramsArray.join("&");
+        };
 
+        /** 
+        * @returns The fully formatted image location string
+        * @type String
+        */
+        public function getImagesLocation():String {
+            return _getScriptLocation() + "img/";
+        };
+
+        // TODO
+        /** These could/should be made namespace aware?
+        *
+        * @param {} p
+        * @param {str} tagName
+        *
+        * @return {Array}
+        */
+        public static function getNodes(p:Canvas, tagName:String):Array {
+            var nodes:Array = Try.these(
+                function () {
+                    return _getNodes(p.documentElement.childNodes,
+                                                    tagName);
+                },
+                function () {
+                    return _getNodes(p.childNodes, tagName);
+                }
+            );
+            return nodes;
+        };
+
+        /**
+        * @param {Array} nodes
+        * @param {str} tagName
+        *
+        * @return {Array}
+        */
+        private function _getNodes(nodes:Array, tagName:String):Array {
+            var retArray:Array = new Array();
+            for (var i:int=0;i<nodes.length;i++) {
+                if (nodes[i].nodeName==tagName) {
+                    retArray.push(nodes[i]);
+                }
+            }
+
+            return retArray;
+        };
+
+		/**
+		* @param {} parent
+		* @param {str} item
+		* @param {int} index
+		*
+		* @return {str}
+		*/
+		public static function getTagText(parent:Object, item:String, index:int):String {
+			var result:Array = getNodes(parent, item);
+			if (result && (result.length > 0))
+			{
+				if (!index) {
+					index=0;
+				}
+				if (result[index].childNodes.length > 1) {
+					return result.childNodes[1].nodeValue; 
+				}
+				else if (result[index].childNodes.length == 1) {
+					return result[index].firstChild.nodeValue; 
+				}
+			} else { 
+				return ""; 
+			}
+		};
+
+		public static function rad(x:Number):Number {
+			return x*Math.PI/180;
+		};
+
+		public static function distVincenty(p1:Pixel, p2:Pixel):Number {
+			var a:Number = 6378137, b:Number = 6356752.3142,  f:Number = 1/298.257223563;
+			var L:Number = rad(p2.lon - p1.lon);
+			var U1:Number = Math.atan((1-f) * Math.tan(rad(p1.lat)));
+			var U2:Number = Math.atan((1-f) * Math.tan(rad(p2.lat)));
+			var sinU1:Number = Math.sin(U1), cosU1:Number = Math.cos(U1);
+			var sinU2:Number = Math.sin(U2), cosU2:Number = Math.cos(U2);
+			var lambda:Number = L, lambdaP:Number = 2*Math.PI;
+			var iterLimit:int = 20;
+			while (Math.abs(lambda-lambdaP) > 1e-12 && --iterLimit>0) {
+				var sinLambda:Number = Math.sin(lambda), cosLambda = Math.cos(lambda);
+				var sinSigma:Number = Math.sqrt((cosU2*sinLambda) * (cosU2*sinLambda) +
+				(cosU1*sinU2-sinU1*cosU2*cosLambda) * (cosU1*sinU2-sinU1*cosU2*cosLambda));
+				if (sinSigma==0) return 0;  // co-incident points
+				var cosSigma:Number = sinU1*sinU2 + cosU1*cosU2*cosLambda;
+				var sigma:Number = Math.atan2(sinSigma, cosSigma);
+				var alpha:Number = Math.asin(cosU1 * cosU2 * sinLambda / sinSigma);
+				var cosSqAlpha:Number = Math.cos(alpha) * Math.cos(alpha);
+				var cos2SigmaM:Number = cosSigma - 2*sinU1*sinU2/cosSqAlpha;
+				var C:Number = f/16*cosSqAlpha*(4+f*(4-3*cosSqAlpha));
+				lambdaP = lambda;
+				lambda = L + (1-C) * f * Math.sin(alpha) *
+				(sigma + C*sinSigma*(cos2SigmaM+C*cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)));
+			}
+			if (iterLimit==0) return NaN  // formula failed to converge
+			var uSq:Number = cosSqAlpha * (a*a - b*b) / (b*b);
+			var A:Number = 1 + uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)));
+			var B:Number = uSq/1024 * (256+uSq*(-128+uSq*(74-47*uSq)));
+			var deltaSigma:Number = B*sinSigma*(cos2SigmaM+B/4*(cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)-
+				B/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
+			var s:Number = b*A*(sigma-deltaSigma);
+			var d:Number = s.toFixed(3)/1000; // round to 1mm precision
+			return d;
+		};
+	}
+
+
+
+
+    /**
+    * @param {String} sStart
+    * 
+    * @returns Whether or not this string starts with the string passed in.
+    * @type Boolean
+    */
+    String.prototype.startsWith = function(sStart:String):Boolean{
+        return (this.substr(0,sStart.length) == sStart);
+    };
+
+    /** Remove an object from an array. Iterates through the array
+    *    to find the item, then removes it.
+    *
+    * @param {Object} item
+    * 
+    * @returns A reference to the array
+    * @type Array
+    */
+    Array.prototype.remove = function(item:Object):Array {
+        for(var i:int=0; i < this.length; i++) {
+            if(this[i] == item) {
+                this.splice(i,1);
+                //break;more than once??
+            }
+        }
+        return this;
+    }
+
+    /**
+    * @returns A fresh copy of the array
+    * @type Array
+    */
+    Array.prototype.copyOf = function() {
+        return this.clone();
+    };
+
+    /**
+    * @param  {Object} item
+    */
+    Array.prototype.prepend = function(item) {
+        this.splice(0, 0, item);
+    };
+
+    /**
+    * @param  {Object} item
+    */
+    Array.prototype.append = function(item:Object):void {
+        this.push(item);
+    };
+
+    /**
+    */
+    Array.prototype.clear = function():void {
+        this.splice(0, this.length);
+    };
+
+// TODO
+/**
+OpenLayers.Util.modifyDOMElement
+OpenLayers.Util.createDiv -> Should map to createCanvas
+OpenLayers.Util.createImage
+OpenLayers.Util.alphaHack
+OpenLayers.Util.modifyAlphaImageDiv
+OpenLayers.Util.createAlphaImageDiv
+OpenLayers.Util.mouseLeft
+**/
 }
