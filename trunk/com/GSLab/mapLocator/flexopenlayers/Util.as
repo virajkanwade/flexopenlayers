@@ -173,6 +173,137 @@ package com.GSLab.mapLocator.flexopenlayers {
 			var d:Number = s.toFixed(3)/1000; // round to 1mm precision
 			return d;
 		};
+
+		/**
+		 * @param {String} id
+		 * @param {Pixel} px
+		 * @param {Size} sz
+		 * @param {String} position
+		 * @param {String} border
+		 * @param {String} overflow
+		 */
+		public static function modifyUIElement(&element:*, id:String, px:Pixel, sz:Size, position:String, border:String, overflow:String) {
+
+			if (id) {
+				element.id = id;
+			}
+			if (px) {
+				element.x = px.x;
+				element.y = px.y;
+			}
+			if (sz) {
+				element.width = sz.w;
+				element.height = sz.h;
+			}
+			/* TODO
+			if (position) {
+				element.style.position = position;
+			}
+			*/
+			/* TODO
+			if (border) {
+				element.style.border = border;
+			}
+			*/
+			/* TODO
+			if (overflow) {
+				element.style.overflow = overflow;
+			}
+			*/
+		};
+
+		/** 
+		* zIndex is NOT set
+		*
+		* @param {String} id
+		* @param {Pixel} px
+		* @param {Size} sz
+		* @param {String} imgURL
+		* @param {String} position
+		* @param {String} border
+		* @param {String} overflow
+		*
+		* @returns A canvas created with the specified attributes.
+		* @type UIContainer
+		*/
+		public static function createCanvas(id:String, px:Pixel, sz:Size, imgURL:String, position:String = null, border:String = null, overflow:String = null):Canvas {
+
+			var canvas:Canvas = new Canvas();
+
+			//set specific properties
+			//TODO dom.style.padding = "0";
+			//TODO dom.style.margin = "0";
+			if (imgURL) {
+				canvas.backgroundImage = imgURL;
+			}
+
+			//set generic properties
+			if (!id) {
+				id = "FlexOpenLayersDiv" + (Math.random() * 10000 % 10000);
+			}
+			/* TODO
+			if (!position) {
+				position = "absolute";
+			}
+			*/
+			modifyUIElement(canvas, id, px, sz, position, border, overflow);
+
+			return canvas;
+		};
+
+		/** 
+		* @param {String} id
+		* @param {Pixel} px
+		* @param {Size} sz
+		* @param {String} imgURL
+		* @param {String} position
+		* @param {String} border
+		*
+		* @returns A Image element created with the specified attributes.
+		* @type Image Element
+		*/
+		public static function createImage(id:String, px:Pixel, sz:Size, imgURL:String, position:String, border:String):Image {
+
+			var image:Image = document.createElement("img");
+
+			//set special properties
+			//TODO image.style.alt = id;
+			//TODO image.galleryImg = "no";
+			if (imgURL) {
+				image.source = imgURL;
+			}
+
+			//set generic properties
+			if (!id) {
+				id = "FlexOpenLayersDiv" + (Math.random() * 10000 % 10000);
+			}
+			/* TODO
+			if (!position) {
+				position = "relative";
+			}
+			*/
+			modifyUIElement(image, id, px, sz, position, border);
+				
+			return image;
+		};
+
+		/** 
+		* @param {Event} evt
+		* @param {UIElement} elem
+		*
+		* @return {boolean}
+		*/
+		private static function(evt:Event, elem:*):Boolean {
+			// start with the element to which the mouse has moved
+			var target:* = (evt.relatedTarget) ? evt.relatedTarget : evt.toElement;
+			// walk up the DOM tree.
+			while (target != div && target != null) {
+				target = target.parent();
+			}
+			// if the target we stop at isn't the div, then we've left the div.
+			return (target != div);
+		};
+
 	}
 
 
@@ -236,12 +367,8 @@ package com.GSLab.mapLocator.flexopenlayers {
 
 // TODO
 /**
-OpenLayers.Util.modifyDOMElement
-OpenLayers.Util.createDiv -> Should map to createCanvas
-OpenLayers.Util.createImage
 OpenLayers.Util.alphaHack
 OpenLayers.Util.modifyAlphaImageDiv
 OpenLayers.Util.createAlphaImageDiv
-OpenLayers.Util.mouseLeft
 **/
 }
