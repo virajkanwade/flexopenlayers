@@ -1,6 +1,7 @@
 /* Copyright (c) 2009 Viraj Kanwade., published under the BSD license. */
 package com.GSLab.mapLocator.flexopenlayers {
 	import mx.containers.Canvas;
+	import mx.controls.Text;
 
 	/**
 	* @class
@@ -22,8 +23,11 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    /** @type LonLat */
 	    public var lonlat:LonLat;
 	
-	    /** @type DOMElement */
+	    /** @type UIElement */
 	    public var canvas:Canvas;
+	    
+	    /** try to replicate div.innerHTML **/
+	    public var canvasInnerHTMLElem:Text;
 	
 	    /** @type Size*/
 	    public var size:Size;    
@@ -65,9 +69,11 @@ package com.GSLab.mapLocator.flexopenlayers {
 	        this.opacity = Popup.OPACITY;
 	        this.border_size = Popup.BORDER_SIZE;
 	
-	        this.canvas = Util.createCanvas(this.id + "_div", null, null, null, null, null, "hidden");
-	
-	        this.events = new Events(this, this.div, null);
+	        this.canvas = Util.createCanvas(this.id + "_canvas", null, null, null, null, null, "hidden");
+	        
+	        this.canvasInnerHTMLElem = new Text();
+	        
+	        this.events = new Events(this, this.canvas, null);
 	    }
 	
 	    /** 
@@ -86,7 +92,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    * @returns Reference to a canvas that contains the drawn popup
 	    * @type UIElement
 	    */
-	    public function draw(px:Pixel):Canvas {
+	    public function draw(px:Pixel = null):Canvas {
 	        if (px == null) {
 	            if ((this.lonlat != null) && (this.map != null)) {
 	                px = this.map.getLayerPxFromLonLat(this.lonlat);
@@ -109,7 +115,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	     */
 	    public function updatePosition():void {
 	        if ((this.lonlat) && (this.map)) {
-	                var px = this.map.getLayerPxFromLonLat(this.lonlat);
+	                var px:Pixel = this.map.getLayerPxFromLonLat(this.lonlat);
 	                this.moveTo(px);            
 	        }
 	    }
@@ -156,8 +162,8 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    /**
 	    * @param {Size} size
 	    */
-	    public function setSize(size:Size):void { 
-	        if (size != undefined) {
+	    public function setSize(size:Size = null):void { 
+	        if (size != null) {
 	            this.size = size; 
 	        }
 	        
@@ -170,27 +176,27 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    /**
 	    * @param {String} color
 	    */
-	    public function setBackgroundColor(color:String) { 
-	        if (color != undefined) {
+	    public function setBackgroundColor(color:String = null):void { 
+	        if (color != null) {
 	            this.backgroundColor = color; 
 	        }
 	        
 	        if (this.canvas != null) {
-	            this.canvas.backgroundColor = this.backgroundColor;
+	        	this.canvas.setStyle("backgroundColor", this.backgroundColor);
 	        }
 	    }
 	    
 	    /**
 	    * @param {float} opacity
 	    */
-	    public function setOpacity(opacity:Number):void { 
-	        if (opacity != undefined) {
+	    public function setOpacity(opacity:Number = -1):void { 
+	        if (opacity != -1) {
 	            this.opacity = opacity; 
 	        }
 	        
 	        if (this.canvas != null) {
 	            // for Mozilla and Safari
-	            this.canvas.opacity = this.opacity;
+	            this.canvas.alpha = this.opacity;
 	
 	            // for IE
 	            // TODO this.div.style.filter = 'alpha(opacity=' + this.opacity*100 + ')';
@@ -200,8 +206,8 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    /**
 	    * @param {int} border
 	    */
-	    public function setBorder(border_size:int):void { 
-	        if (border_size != undefined) {
+	    public function setBorder(border_size:int = -1):void { 
+	        if (border_size != -1) {
 	            this.border_size = border_size;
 	        }
 	      
@@ -214,13 +220,13 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    /**
 	    * @param {String} contentHTML
 	    */
-	    public function setContentHTML(contentHTML:String):void {
+	    public function setContentHTML(contentHTML:String = null):void {
 	        if (contentHTML != null) {
 	            this.contentHTML = contentHTML;
 	        }
 	        
 	        if (this.canvas != null) {
-	            this.canvas.innerHTML = this.contentHTML;
+	            this.canvasInnerHTMLElem.text = this.contentHTML;
 	        }    
 	    }
 	}

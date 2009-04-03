@@ -1,12 +1,15 @@
 /* Copyright (c) 2009 Viraj Kanwade., published under the BSD license. */
 package com.GSLab.mapLocator.flexopenlayers {
+	import flash.events.Event;
+	
 	import mx.containers.Canvas;
+	import mx.controls.Image;
 
 	/**
 	* @class
 	*/
 	//var Util:Object = new Object();
-    class Util {
+    public class Util {
         /** Creates a new hash and copies over all the keys from the 
         *    passed-in object, but storing them under an uppercased
         *    version of the key at which they were stored.
@@ -17,7 +20,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @type Object
         */ 
         public static function upperCaseObject(object:Object):Object {
-            var uObject = new Object();
+            var uObject:Object = new Object();
             for (var key:String in object) {
                 uObject[key.toUpperCase()] = object[key];
             }
@@ -40,7 +43,7 @@ package com.GSLab.mapLocator.flexopenlayers {
                 }
             }
             return to;
-        };
+        }
 
         /**
         * @param {Object} params
@@ -50,7 +53,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         *    (ex. <i>"key1=value1&key2=value2&key3=value3"</i>)
         * @type String
         */
-        public static function getParameterString(params:Object) {
+        public static function getParameterString(params:Object):String {
             var paramsArray:Array = new Array();
             
             for (var key:String in params) {
@@ -69,10 +72,10 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @type String
         */
         public function getImagesLocation():String {
-            return _getScriptLocation() + "img/";
-        };
+            //TODO return _getScriptLocation() + "img/";
+            return "";
+        }
 
-        // TODO
         /** These could/should be made namespace aware?
         *
         * @param {} p
@@ -81,17 +84,24 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @return {Array}
         */
         public static function getNodes(p:Canvas, tagName:String):Array {
-            var nodes:Array = Try.these(
-                function () {
-                    return _getNodes(p.documentElement.childNodes,
-                                                    tagName);
+        	/*
+            var nodes:Array = [
+                function ():Array {
+                    return _getNodes(p.getChildren(), tagName);
                 },
-                function () {
-                    return _getNodes(p.childNodes, tagName);
+                function ():Array {
+                    return _getNodes(p.getChildren(), tagName);
                 }
-            );
+            ];
+            */
+            // TODO
+            var nodes:Array = [
+                function ():Array {
+                    return _getNodes(p.getChildren(), tagName);
+                }
+            ];
             return nodes;
-        };
+        }
 
         /**
         * @param {Array} nodes
@@ -99,7 +109,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         *
         * @return {Array}
         */
-        private function _getNodes(nodes:Array, tagName:String):Array {
+        private static function _getNodes(nodes:Array, tagName:String):Array {
             var retArray:Array = new Array();
             for (var i:int=0;i<nodes.length;i++) {
                 if (nodes[i].nodeName==tagName) {
@@ -117,7 +127,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		*
 		* @return {str}
 		*/
-		public static function getTagText(parent:Object, item:String, index:int):String {
+		public static function getTagText(parent:Canvas, item:String, index:int):String {
 			var result:Array = getNodes(parent, item);
 			if (result && (result.length > 0))
 			{
@@ -130,16 +140,15 @@ package com.GSLab.mapLocator.flexopenlayers {
 				else if (result[index].childNodes.length == 1) {
 					return result[index].firstChild.nodeValue; 
 				}
-			} else { 
-				return ""; 
 			}
-		};
+			return ""; 
+		}
 
 		public static function rad(x:Number):Number {
 			return x*Math.PI/180;
 		};
 
-		public static function distVincenty(p1:Pixel, p2:Pixel):Number {
+		public static function distVincenty(p1:LonLat, p2:LonLat):Number {
 			var a:Number = 6378137, b:Number = 6356752.3142,  f:Number = 1/298.257223563;
 			var L:Number = rad(p2.lon - p1.lon);
 			var U1:Number = Math.atan((1-f) * Math.tan(rad(p1.lat)));
@@ -149,7 +158,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 			var lambda:Number = L, lambdaP:Number = 2*Math.PI;
 			var iterLimit:int = 20;
 			while (Math.abs(lambda-lambdaP) > 1e-12 && --iterLimit>0) {
-				var sinLambda:Number = Math.sin(lambda), cosLambda = Math.cos(lambda);
+				var sinLambda:Number = Math.sin(lambda), cosLambda:Number = Math.cos(lambda);
 				var sinSigma:Number = Math.sqrt((cosU2*sinLambda) * (cosU2*sinLambda) +
 				(cosU1*sinU2-sinU1*cosU2*cosLambda) * (cosU1*sinU2-sinU1*cosU2*cosLambda));
 				if (sinSigma==0) return 0;  // co-incident points
@@ -170,9 +179,9 @@ package com.GSLab.mapLocator.flexopenlayers {
 			var deltaSigma:Number = B*sinSigma*(cos2SigmaM+B/4*(cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)-
 				B/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
 			var s:Number = b*A*(sigma-deltaSigma);
-			var d:Number = s.toFixed(3)/1000; // round to 1mm precision
+			var d:Number = Number(s.toFixed(3))/1000; // round to 1mm precision
 			return d;
-		};
+		}
 
 		/**
 		 * @param {String} id
@@ -182,7 +191,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		 * @param {String} border
 		 * @param {String} overflow
 		 */
-		public static function modifyUIElement(&element:*, id:String, px:Pixel, sz:Size, position:String, border:String, overflow:String) {
+		public static function modifyUIElement(element:*, id:String, px:Pixel, sz:Size, position:String = null, border:String = null, overflow:String = null):void {
 
 			if (id) {
 				element.id = id;
@@ -195,6 +204,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 				element.width = sz.w;
 				element.height = sz.h;
 			}
+			var cnvs:Canvas = new Canvas();
 			/* TODO
 			if (position) {
 				element.style.position = position;
@@ -210,7 +220,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 				element.style.overflow = overflow;
 			}
 			*/
-		};
+		}
 
 		/** 
 		* zIndex is NOT set
@@ -226,7 +236,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		* @returns A canvas created with the specified attributes.
 		* @type UIContainer
 		*/
-		public static function createCanvas(id:String, px:Pixel, sz:Size, imgURL:String, position:String = null, border:String = null, overflow:String = null):Canvas {
+		public static function createCanvas(id:String = null, px:Pixel = null, sz:Size = null, imgURL:String = null, position:String = null, border:String = null, overflow:String = null):Canvas {
 
 			var canvas:Canvas = new Canvas();
 
@@ -234,7 +244,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 			//TODO dom.style.padding = "0";
 			//TODO dom.style.margin = "0";
 			if (imgURL) {
-				canvas.backgroundImage = imgURL;
+				// TODO canvas.backgroundImage = imgURL;
 			}
 
 			//set generic properties
@@ -249,7 +259,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 			modifyUIElement(canvas, id, px, sz, position, border, overflow);
 
 			return canvas;
-		};
+		}
 
 		/** 
 		* @param {String} id
@@ -262,9 +272,9 @@ package com.GSLab.mapLocator.flexopenlayers {
 		* @returns A Image element created with the specified attributes.
 		* @type Image Element
 		*/
-		public static function createImage(id:String, px:Pixel, sz:Size, imgURL:String, position:String, border:String):Image {
+		public static function createImage(id:String = "", px:Pixel = null, sz:Size = null, imgURL:String = "", position:String = null, border:String = null):Image {
 
-			var image:Image = document.createElement("img");
+			var image:Image = new Image();
 
 			//set special properties
 			//TODO image.style.alt = id;
@@ -293,16 +303,88 @@ package com.GSLab.mapLocator.flexopenlayers {
 		*
 		* @return {boolean}
 		*/
-		private static function(evt:Event, elem:*):Boolean {
+		private static function mouseLeft(evt:Event, elem:*):Boolean {
 			// start with the element to which the mouse has moved
-			var target:* = (evt.relatedTarget) ? evt.relatedTarget : evt.toElement;
+			//var target:* = (evt.relatedTarget) ? evt.relatedTarget : evt.toElement;
+			var target:* = evt.currentTarget;
 			// walk up the DOM tree.
-			while (target != div && target != null) {
+			while (target is Canvas && target != null) {
 				target = target.parent();
 			}
 			// if the target we stop at isn't the div, then we've left the div.
-			return (target != div);
+			return (!target is Canvas);
+		}
+
+		public static function alphaHack():Boolean {
+			/*
+		    var arVersion = navigator.appVersion.split("MSIE");
+		    var version = parseFloat(arVersion[1]);
+		    
+		    return ( (document.body.filters) && (version >= 5.5) && (version < 7) );
+		    */
+		    return false;
+		}
+
+		/** 
+		* @param {UIElement} canvas Canvas containing Alpha-adjusted Image
+		* @param {String} id
+		* @param {Pixel} px
+		* @param {Size} sz
+		* @param {String} imgURL
+		* @param {String} position
+		* @param {String} border
+		* @param {String} sizing 'crop', 'scale', or 'image'. Default is "scale"
+		*/ 
+		public static function modifyAlphaImageCanvas(canvas:Canvas, id:String, px:Pixel, sz:Size, imgURL:String, position:String = null, border:String = null, sizing:String = null):void {
+		
+		    modifyUIElement(canvas, id, px, sz);
+		
+		    var img:Image = canvas.getChildren()[0];
+		
+		    if (imgURL) {
+		        img.source = imgURL;
+		    }
+		    
+		    modifyUIElement(img, canvas.id + "_innerImage", null, sz, "relative", border);
+		
+			/* TODO
+		    if (alphaHack()) {
+		        div.style.display = "inline-block";
+		        if (sizing == null) {
+		            sizing = "scale";
+		        }
+		        div.style.filter = "progid:DXImageTransform.Microsoft" +
+		                           ".AlphaImageLoader(src='" + img.src + "', " +
+		                           "sizingMethod='" + sizing + "')";
+		        img.style.filter = "progid:DXImageTransform.Microsoft" +
+		                                ".Alpha(opacity=0)";
+		    }
+		    */
 		};
+
+		/** 
+		* @param {String} id
+		* @param {Pixel} px
+		* @param {Size} sz
+		* @param {String} imgURL
+		* @param {String} position
+		* @param {String} border
+		* @param {String} sizing 'crop', 'scale', or 'image'. Default is "scale"
+		*
+		* @returns A UI Canvas created with a Image inside it. If the hack is 
+		*           needed for transparency in IE, it is added.
+		* @type UIElement
+		*/ 
+		public static function createAlphaImageCanvas(id:String, px:Pixel, sz:Size, imgURL:String, position:String, border:String, sizing:String):Canvas {
+		    
+		    var canvas:Canvas = createCanvas();
+		    var img:Image = Util.createImage();
+		    canvas.addChild(img);
+		
+		    modifyAlphaImageCanvas(canvas, id, px, sz, imgURL, position, border, sizing);
+		    
+		    return canvas;
+		}
 
 	}
 
@@ -341,23 +423,23 @@ package com.GSLab.mapLocator.flexopenlayers {
     * @returns A fresh copy of the array
     * @type Array
     */
-    Array.prototype.copyOf = function() {
+    Array.prototype.copyOf = function():Array {
         return this.clone();
-    };
+    }
 
     /**
     * @param  {Object} item
     */
-    Array.prototype.prepend = function(item) {
+    Array.prototype.prepend = function(item:Object):void {
         this.splice(0, 0, item);
-    };
+    }
 
     /**
     * @param  {Object} item
     */
     Array.prototype.append = function(item:Object):void {
         this.push(item);
-    };
+    }
 
     /**
     */
@@ -365,10 +447,4 @@ package com.GSLab.mapLocator.flexopenlayers {
         this.splice(0, this.length);
     };
 
-// TODO
-/**
-OpenLayers.Util.alphaHack
-OpenLayers.Util.modifyAlphaImageDiv
-OpenLayers.Util.createAlphaImageDiv
-**/
 }

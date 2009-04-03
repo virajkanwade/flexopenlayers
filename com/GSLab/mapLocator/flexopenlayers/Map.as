@@ -8,7 +8,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	*
 	*
 	*/
-	class Map {
+	public class Map {
 	    // Hash: base z-indexes for different classes of thing 
 	    var Z_INDEX_BASE:Object = { Layer: 100, Popup: 200, Control: 1000 };
 	
@@ -30,7 +30,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    var projection:String = "EPSG:4326";
 	
 	    /** @type Size */
-	    var size:Size = null;
+	    var size:Size;
 	
 	    // float
 	    var maxResolution:Number = 1.40625; // degrees per pixel 
@@ -77,7 +77,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	
 	        // the viewPortCanvas is the outermost canvas we modify
 	        var id:String = cnvs.id + "_FlexOpenLayers_ViewPort";
-	        this.viewPortCanvas = createCanvas(id, null, null, null,
+	        this.viewPortCanvas = Util.createCanvas(id, null, null, null,
 	                                                     "relative", null,
 	                                                     "hidden");
 	        this.viewPortCanvas.percentWidth = 100;
@@ -86,18 +86,20 @@ package com.GSLab.mapLocator.flexopenlayers {
 	
 	        // the layerContainerCanvas is the one that holds all the layers
 	        id = cnvs.id + "_FlexOpenLayers_Container";
-	        this.layerContainerCanvas = createCanvas(id);
-	        this.viewPortCanvas.appendChild(this.layerContainerCanvas);
+	        this.layerContainerCanvas = Util.createCanvas(id);
+	        this.viewPortCanvas.addChild(this.layerContainerCanvas);
 	
 	        // TODO this.events = new Events(this, div, this.EVENT_TYPES);
 	
 	        this.updateSize();
 	        // make the entire maxExtent fix in zoom level 0 by default
+	        /* TODO
 	        if (this.maxResolution == null || this.maxResolution == "auto") {
 	            this.maxResolution = Math.max(
 	                this.maxExtent.getWidth()  / this.size.w,
 	                this.maxExtent.getHeight() / this.size.h );
 	        }
+	        */
 	        // update the internal size register whenever the div is resized
 	        // TODO this.events.register("resize", this, this.updateSize);
 	
@@ -138,10 +140,10 @@ package com.GSLab.mapLocator.flexopenlayers {
 	        // TODO layer.div.style.overflow = "";
 	        // TODO layer.div.style.zIndex = this.Z_INDEX_BASE['Layer'] + this.layers.length;
 	
-	        if (layer.viewPortLayer) {
-	            this.viewPortCanvas.appendChild(layer.canvas);
+	        if (layer.viewPortLayer != null) {
+	            this.viewPortCanvas.addChild(layer.canvas);
 	        } else {
-	            this.layerContainerCanvas.appendChild(layer.canvas);
+	            this.layerContainerCanvas.addChild(layer.canvas);
 	        }
 	        this.layers.push(layer);
 	
@@ -207,7 +209,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	        var cnvs:Canvas = control.draw(px);
 	        if (cnvs) {
 	            // TODO div.style.zIndex = this.Z_INDEX_BASE['Control'] + this.controls.length;
-	            this.viewPortDiv.appendChild(cnvs);
+	            this.viewPortCanvas.addChild(cnvs);
 	        }
 	    }
 	
@@ -217,10 +219,10 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    public function addPopup(popup:Popup) {
 	        popup.map = this;
 	        this.popups.push(popup);
-	        var popupCanvas = popup.draw();
+	        var popupCanvas:Canvas = popup.draw();
 	        if (popupCanvas) {
 	            // TODO popupDiv.style.zIndex = this.Z_INDEX_BASE['Popup'] + this.popups.length;
-	            this.layerContainerCanvas.appendChild(popupCanvas);
+	            this.layerContainerCanvas.addChild(popupCanvas);
 	        }
 	    }
 	    
@@ -261,17 +263,16 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    * @private
 	    */
 	    private function updateSize():void {
-	        this.size = new Size(this.canvas.clientWidth, this.canvas.clientHeight);
+	        this.size = new Size(this.canvas.width, this.canvas.height);
 	        this.events.canvas.offsets = null;
 	        // Workaround for the fact that hidden elements return 0 for size.
 	        if (this.size.w == 0 && this.size.h == 0) {
-	            var dim = Element.getDimensions(this.canvas);
-	            this.size.w = dim.width;
-	            this.size.h = dim.height;
+	            this.size.w = this.canvas.width;
+	            this.size.h = this.canvas.height;
 	        }
 	        if (this.size.w == 0 && this.size.h == 0) {
-	            this.size.w = parseInt(this.canvas.style.width);
-	            this.size.h = parseInt(this.canvas.style.height);
+	            this.size.w = Number(this.canvas.width);
+	            this.size.h = Number(this.canvas.height);
 	    	}
 	    }
 	
@@ -336,8 +337,8 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    private function getViewPortPxFromLayerPx(layerPx:Pixel):Pixel {
 	        var viewPortPx:Pixel = layerPx.copyOf();
 	
-	        viewPortPx.x += parseInt(this.layerContainerDiv.style.left);
-	        viewPortPx.y += parseInt(this.layerContainerDiv.style.top);
+	        viewPortPx.x += Number(this.layerContainerCanvas.x);
+	        viewPortPx.y += Number(this.layerContainerCanvas.y);
 	
 	        return viewPortPx;
 	    }
@@ -352,8 +353,8 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    private function getLayerPxFromViewPortPx(viewPortPx:Pixel):Pixel {
 	        var layerPx:Pixel = viewPortPx.copyOf();
 	
-	        layerPx.x -= parseInt(this.layerContainerDiv.style.left);
-	        layerPx.y -= parseInt(this.layerContainerDiv.style.top);
+	        layerPx.x -= Number(this.layerContainerCanvas.x);
+	        layerPx.y -= Number(this.layerContainerCanvas.y);
 	
 	        return layerPx;
 	    }
@@ -428,7 +429,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    */
 	    private function getViewPortPxFromLonLat(lonlat:LonLat):Pixel {
 	        var resolution:Number = this.getResolution();
-	        var extent:Extent = this.getExtent();
+	        var extent:Bounds = this.getExtent();
 	        return new Pixel(
 	                       Math.round(1/resolution * (lonlat.lon - extent.left)),
 	                       Math.round(1/resolution * (extent.top - lonlat.lat))
@@ -452,15 +453,15 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    * @param {LonLat} lonlat
 	    * @param {int} zoom
 	    */
-	    public function setCenter(lonlat:LonLat, zoom:int, minor:Boolean):void {
+	    public function setCenter(lonlat:LonLat, zoom:int, minor:Boolean = false):void {
 	        if (this.center) { // otherwise there's nothing to move yet
 	            this.moveLayerContainer(lonlat);
 	        }
 	        this.center = lonlat.copyOf();
 	        var zoomChanged:int = null;
-	        if (zoom != null && zoom != this.zoom 
+	        if (zoom != this.zoom 
 	            && zoom >= 0 && zoom <= this.getZoomLevels()) {
-	            zoomChanged = (this.zoom == null ? 0 : this.zoom);
+	            zoomChanged = this.zoom;
 	            this.zoom = zoom;
 	        }
 	
@@ -473,10 +474,10 @@ package com.GSLab.mapLocator.flexopenlayers {
 	     * ZOOM TO BOUNDS FUNCTION
 	     * @private
 	     */
-	    private function moveToNewExtent(zoomChanged:Boolean, minor:Boolean) {
-	        if (zoomChanged != null) { // reset the layerContainerDiv's location
-	            this.layerContainerCanvas.left = "0";
-	            this.layerContainerCanvas.top  = "0";
+	    private function moveToNewExtent(zoomChanged:Boolean, minor:Boolean = false) {
+	        if (zoomChanged != null) { // reset the layerContainerCanvas's location
+	            this.layerContainerCanvas.x = 0;
+	            this.layerContainerCanvas.y  = 0;
 	
 	            //redraw popups
 	            for (var i:int = 0; i < this.popups.length; i++) {
@@ -500,7 +501,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	     * @param {int} zoom
 	     */
 	    public function zoomIn():void {
-	        if (this.zoom != null && this.zoom <= this.getZoomLevels()) {
+	        if (this.zoom <= this.getZoomLevels()) {
 	            this.zoomTo( this.zoom += 1 );
 	        }
 	    }
@@ -524,7 +525,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	     * @param {int} zoom
 	     */
 	    public function zoomOut():void {
-	        if (this.zoom != null && this.zoom > 0) {
+	        if (this.zoom > 0) {
 	            this.zoomTo( this.zoom - 1 );
 	        }
 	    }
@@ -536,8 +537,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    public function zoomToFullExtent():void {
 	        var fullExtent:Bounds = this.getFullExtent();
 	        this.setCenter(
-	          new LonLat((fullExtent.left+fullExtent.right)/2,
-	                                (fullExtent.bottom+fullExtent.top)/2),
+	          new LonLat((fullExtent.left+fullExtent.right)/2, (fullExtent.bottom+fullExtent.top)/2),
 	          this.getZoomForExtent(fullExtent)
 	        );
 	    }
@@ -553,11 +553,11 @@ package com.GSLab.mapLocator.flexopenlayers {
 	        var deltaX:Number = Math.round((this.center.lon - lonlat.lon) / resolution);
 	        var deltaY:Number = Math.round((this.center.lat - lonlat.lat) / resolution);
 	     
-	        var offsetLeft:int = parseInt(container.left);
-	        var offsetTop:int  = parseInt(container.top);
+	        var offsetLeft:int = Number(container.x);
+	        var offsetTop:int  = Number(container.y);
 	
-	        container.left = (offsetLeft + deltaX);
-	        container.top  = (offsetTop  - deltaY);
+	        container.x = (offsetLeft + deltaX);
+	        container.y  = (offsetTop  - deltaY);
 	    }
 	
 }

@@ -3,7 +3,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	/**
 	* @class This class represents a screen coordinate, in x and y coordinates
 	*/
-	class Pixel {
+	public class Pixel {
 
 		/** @type float **/
 		public var x:Number = 0.0;
@@ -34,7 +34,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		* @type Pixel
 		*/
 		public function copyOf():Pixel {
-			return this.clone();
+	        return new Pixel(this.x, this.y); 
 		}
 
 		/**
@@ -44,7 +44,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		* 	note that if px passed in is null, returns false
 		* @type bool
 		*/
-		public function equals(px:Pixel) {
+		public function equals(px:Pixel):Boolean {
 			var equals:Boolean = false;
 			if (px != null) {
 				equals = ((this.x == px.x) && (this.y == px.y));
@@ -60,7 +60,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		*         values passed in.
 		* @type Pixel
 		*/
-		public function add(x, y):Pixel {
+		public function add(x:Number, y:Number):Pixel {
 			return new Pixel(this.x + x, this.y + y);
 		}
 
@@ -71,7 +71,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		*         x&y values of the pixel passed in.
 		* @type Pixel
 		*/
-		public function offset(px):Pixel {
+		public function offset(px:Pixel):Pixel {
 			return this.add(px.x, px.y);
 		}
 

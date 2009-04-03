@@ -1,5 +1,10 @@
 /* Copyright (c) 2009 Viraj Kanwade., published under the BSD license. */
 package com.GSLab.mapLocator.flexopenlayers {
+	import flash.events.Event;
+	
+	import mx.containers.Canvas;
+	import mx.events.DragEvent;
+	
 
 	/*
 	 * Class
@@ -29,7 +34,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		* @param {UIElement} canvas
 		*/
 		public function Events(object:Object, canvas:Canvas, eventTypes:Array):void {
-			this.listeners  = {};
+			this.listeners  = [];
 			this.object     = object;
 			this.canvas        = canvas;
 			this.eventTypes = eventTypes;
@@ -46,12 +51,18 @@ package com.GSLab.mapLocator.flexopenlayers {
 				// (whether it's listened for or not).
 				this.listeners[ eventType ] = [];
 
-				Event.observe(canvas, eventType, this.handleBrowserEvent.bindAsEventListener(this));
+				canvas.addEventListener(eventType, this.handleBrowserEvent);
+				//Event.observe(canvas, eventType, this.handleBrowserEvent.bindAsEventListener(this));
 			}
 			// disable dragstart in IE so that mousedown/move/up works normally
-			Event.observe(canvas, "dragstart", Event.stop);
+			canvas.addEventListener(DragEvent.DRAG_START, stopDrag);
+			//Event.observe(canvas, "dragstart", Event.stop);
 		}
 
+		private function stopDrag(e:Event):void {
+			e.stopPropagation();
+		}
+		
 		/**
 		* @param {str} type
 		* @param {Object} obj
@@ -93,12 +104,11 @@ package com.GSLab.mapLocator.flexopenlayers {
 		*
 		* @return {Pixel}
 		*/
-		public function getMousePosition(evt:Event):void {
+		public function getMousePosition(evt:Event):Pixel {
 			if (!this.canvas.offsets) {
 				this.canvas.offsets = Position.page(this.canvas);
 			}
-			return new Pixel(
-							evt.clientX - this.div.offsets[0],
+			return new Pixel(evt.clientX - this.div.offsets[0],
 							evt.clientY - this.div.offsets[1]);
 		}
 
@@ -106,9 +116,9 @@ package com.GSLab.mapLocator.flexopenlayers {
 		* @param {str} type
 		* @param {event} evt
 		*/
-		public static function triggerEvent(type:String, evt:Event) {
+		public function triggerEvent(type:String, evt:Event):void {
 			if (evt == null) {
-				evt = {};
+				evt = new Object();
 			}
 			evt.object = this.object;
 			evt.canvas = this.canvas;
