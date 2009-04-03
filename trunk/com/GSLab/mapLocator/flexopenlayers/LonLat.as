@@ -3,7 +3,7 @@ package com.GSLab.mapLocator.flexopenlayers {
     /**
     * @class This class represents a longitude and latitude pair
     */
-    class LonLat {
+    public class LonLat {
 
         /** @type float */
         public var lon:Number = 0.0;
@@ -20,7 +20,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 	    * @param {String} str Comma-separated Lon,Lat coordinate string.
         *                     (ex. <i>"5,40"</i>)
          */
-        public function LonLat():void {
+        public function LonLat(... arguments):void {
         	var lon:Number;
         	var lat:Number;
         	if(arguments.length == 0) {
@@ -47,8 +47,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         */
         public static function fromString(str:String):LonLat {
             var pair:Array = str.split(",");
-            return new LonLat(parseFloat(pair[0]),
-                                         parseFloat(pair[1]));
+            return new LonLat(parseFloat(pair[0]), parseFloat(pair[1]));
         }
 
         /**
@@ -74,7 +73,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @type LonLat
         */
         public function copyOf():LonLat {
-            return this.clone();
+        	return new LonLat(this.lon, this.lat);
         }
 
         /**

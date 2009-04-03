@@ -2,17 +2,19 @@
 package com.GSLab.mapLocator.flexopenlayers {
 	import mx.containers.Canvas;
 	
-	class Layer {
+	public class Layer {
 
 		/** @type String */
-		var name:String;
+		public var name:String;
 
 		/** @type DOMElement */
-		var canvas:Canvas;
+		public var canvas:Canvas;
 
 		/** This variable is set in map.addLayer, not within the layer itself
 		* @type Map */
-		var map:Map;
+		public var map:Map;
+    
+    public var viewPortLayer:Boolean;
 
 		/**
 		 * @constructor
@@ -24,8 +26,8 @@ package com.GSLab.mapLocator.flexopenlayers {
 				this.name = name;
 				if (this.canvas == null) {
 					this.canvas = Util.createCanvas();
-					this.canvas.percentWidth = "100";
-					this.canvas.percentHeight = "100";
+					this.canvas.percentWidth = 100;
+					this.canvas.percentHeight = 100;
 				}
 			}
 		}
@@ -64,6 +66,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		 */
 		public function isBaseLayer():Boolean {
 		   //this function should be implemented by all subclasses.
+		   return false;
 		}
 
 		/**
@@ -77,10 +80,10 @@ package com.GSLab.mapLocator.flexopenlayers {
 		/**
 		* @param {bool} visible
 		*/
-		public function setVisibility(visible:Boolean) {
+		public function setVisibility(visible:Boolean):void {
 			this.canvas.visible = visible;
 			if ((visible) && (this.map != null)) {
-				this.moveTo(this.map.getExtent());
+				this.moveTo(this.map.getExtent(), false);
 			}
 		}
 

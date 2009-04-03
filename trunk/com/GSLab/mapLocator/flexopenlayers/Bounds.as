@@ -4,7 +4,7 @@ package com.GSLab.mapLocator.flexopenlayers {
     * @class This class represents a bounding box.
     *        Data stored as left, bottom, right, top floats
     */
-    class Bounds {
+    public class Bounds {
 
         /** @type float */
         public var left:Number = 0.0;
@@ -39,29 +39,30 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @param {Size} size
         *
         */
-        public function Bounds(left:Number, bottom:Number, right:Number, top:Number) {
+        public function Bounds(... arguments) {
             var left:Number;
             var bottom:Number;
             var right:Number;
             var top:Number;
+            var bbox:Array;
         	if(arguments.length == 1) {
         		var obj:Object = arguments[0];
         		if(obj is String) {
-		            var bbox:Array = String(obj).split(",");
+		            bbox = String(obj).split(",");
 		            left = parseFloat(bbox[0]);
                     bottom = parseFloat(bbox[1]);
                     right = parseFloat(bbox[2]);
                     top = parseFloat(bbox[3]);
         		} else if(obj is Array) {
-        			var bbox:Array = obj as Array; 
+        			bbox = obj as Array; 
 		            left = parseFloat(bbox[0]);
 		            bottom = parseFloat(bbox[1]);
 		            right = parseFloat(bbox[2]);
 		            top = parseFloat(bbox[3]);
         		} else if(obj is Size) {
 		            left = 0;
-		            bottom = size.h;
-		            right = size.w;
+		            bottom = obj.h;
+		            right = obj.w;
 		            top = 0;
         		}
         	} else if(arguments.length == 4) {
@@ -93,7 +94,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @type Bounds
         */
         public static function fromString(str:String):Bounds {
-            var bounds = str.split(",");
+            var bounds:Array = str.split(",");
             return Bounds.fromArray(bounds);
         }
 
@@ -137,7 +138,9 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @type Bounds
         */
         public function copyOf():Bounds {
-            return this.clone();
+        	return new Bounds(this.left, this.bottom, 
+                                     this.right, this.top);
+
         }
 
         /**
@@ -217,8 +220,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @type LonLat
         */
         public function getCenterLonLat():LonLat {
-            return new LonLat( (this.left + this.right) / 2,
-                                          (this.bottom + this.top) / 2);
+            return new LonLat( (this.left + this.right) / 2, (this.bottom + this.top) / 2);
         }
 
         /**
@@ -230,7 +232,7 @@ package com.GSLab.mapLocator.flexopenlayers {
         * @type Bounds
         */
         public function add(x:Number, y:Number):Bounds {
-            return new Box(this.left + x, this.bottom + y,
+            return new Bounds(this.left + x, this.bottom + y,
                                       this.right + x, this.top + y);
         }
 
@@ -288,10 +290,10 @@ package com.GSLab.mapLocator.flexopenlayers {
             }
             */
 
-            var inLeft;
-            var inTop;
-            var inRight;
-            var inBottom;
+            var inLeft:Boolean;
+            var inTop:Boolean;
+            var inRight:Boolean;
+            var inBottom:Boolean;
 
             if (inclusive) {
                 inLeft = (bounds.left >= this.left) && (bounds.left <= this.right);

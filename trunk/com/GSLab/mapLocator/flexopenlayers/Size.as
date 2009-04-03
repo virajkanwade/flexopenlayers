@@ -3,7 +3,7 @@ package com.GSLab.mapLocator.flexopenlayers {
     /**
     * @class This class represents a width and height pair
     */
-	class Size {
+	public class Size {
 
 		/** @type float */
 		public var w:Number = 0.0;
@@ -37,7 +37,7 @@ package com.GSLab.mapLocator.flexopenlayers {
 		* @type Size
 		*/
 		public function copyOf():Size {
-			return this.clone();
+	        return new Size(this.w, this.h);
 		}
 
 		/**
