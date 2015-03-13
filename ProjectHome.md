@@ -1,0 +1,1 @@
+This is an attempt to port the [OpenLayers](http://www.openlayers.com) javascript API to actionscript for use in flex apps.
